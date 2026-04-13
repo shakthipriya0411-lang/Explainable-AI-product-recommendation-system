@@ -1,0 +1,12 @@
+flask
+pandas
+numpy
+scikit-learn
+torch
+networkx
+pyvis
+pytesseract
+pillow
+matplotlib
+seaborn
+transformers

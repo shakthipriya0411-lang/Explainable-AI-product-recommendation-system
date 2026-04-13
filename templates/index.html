@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Explainable AI Recommendation Dashboard</title>
+
+<meta charset="UTF-8">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* GLOBAL */
+
+body{
+margin:0;
+font-family:Segoe UI, Arial;
+background:#ffffff;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+width:240px;
+height:100%;
+background:#c9a227;
+color:white;
+padding-top:20px;
+}
+
+.sidebar h2{
+text-align:center;
+margin-bottom:25px;
+}
+
+.sidebar a{
+display:block;
+padding:14px;
+color:white;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#b8961f;
+}
+
+/* MAIN */
+
+.main{
+margin-left:240px;
+padding:30px;
+}
+
+/* CARD */
+
+.card{
+background:#fffaf0;
+padding:22px;
+border-radius:12px;
+box-shadow:0 6px 14px rgba(0,0,0,0.1);
+margin-bottom:22px;
+border-left:6px solid #c9a227;
+}
+
+/* STATS */
+
+.stats-grid{
+display:grid;
+grid-template-columns: repeat(5, 1fr);
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat-card{
+background:#fffaf0;
+padding:18px;
+border-radius:12px;
+box-shadow:0 6px 14px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.stat-card h3{
+margin:0;
+font-size:16px;
+color:#555;
+}
+
+.stat-card p{
+font-size:22px;
+font-weight:bold;
+margin-top:8px;
+color:#8b7500;
+}
+
+/* BUTTON */
+
+button{
+padding:10px 22px;
+background:#c9a227;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#a8841f;
+}
+
+/* BADGE */
+
+.badge{
+display:inline-block;
+padding:6px 12px;
+background:#c9a227;
+color:white;
+border-radius:6px;
+font-weight:bold;
+}
+
+/* SEVERITY COLORS */
+
+.high{
+background:#e74c3c;
+color:white;
+}
+
+.medium{
+background:#f39c12;
+color:white;
+}
+
+.low{
+background:#2ecc71;
+color:white;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+table th{
+background:#c9a227;
+color:white;
+padding:10px;
+}
+
+table td{
+padding:8px;
+border-bottom:1px solid #ddd;
+}
+
+/* TEXT BOX */
+
+.preview-box{
+background:#fff8dc;
+padding:15px;
+border-radius:10px;
+font-family:monospace;
+white-space:pre-wrap;
+line-height:1.5;
+}
+
+canvas{
+max-height:350px;
+}
+
+.legend span{
+margin-right:20px;
+font-weight:bold;
+}
+
+.blue{ color:blue; }
+.green{ color:green; }
+.red{ color:red; }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>AI Dashboard</h2>
+
+<a href="#home">Home</a>
+<a href="#recommendations">Recommendations</a>
+<a href="#metrics">Metrics</a>
+<a href="#graph">Graph</a>
+
+</div>
+
+<div class="main" id="home">
+
+<h1>Explainable AI Product Recommendation System</h1>
+
+<!-- DATASET SUMMARY -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+<h3>Total Users</h3>
+<p>{{ total_users }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Total Products</h3>
+<p>{{ total_products }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Total Reviews</h3>
+<p>{{ total_reviews }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Positive Reviews</h3>
+<p>{{ positive }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Negative Reviews</h3>
+<p>{{ negative }}</p>
+</div>
+
+</div>
+
+<!-- SENTIMENT CHART -->
+
+<div class="card">
+
+<h2>Sentiment Distribution</h2>
+
+<canvas id="sentimentChart"></canvas>
+
+</div>
+
+<!-- PERFORMANCE -->
+
+<div class="card" id="metrics">
+
+<h2>Model Performance</h2>
+
+<canvas id="performanceChart"></canvas>
+
+</div>
+
+<!-- RECOMMENDATION INPUT -->
+
+<div class="card">
+
+<h2>Personalized Recommendation</h2>
+
+<form method="POST">
+
+<input
+type="text"
+name="user_id"
+value="{{ user_id }}"
+placeholder="Enter User ID"
+style="padding:8px;width:250px;">
+
+<br><br>
+
+<button>
+Get Recommendations
+</button>
+
+</form>
+
+</div>
+
+<!-- RECOMMENDATIONS -->
+
+<div class="card" id="recommendations">
+
+<h2>Top Recommended Products</h2>
+
+{{ table_html | safe }}
+
+<p>
+
+<b>Recommendation Confidence:</b>
+
+<span class="badge">
+
+{{ confidence }} %
+
+</span>
+
+</p>
+
+</div>
+
+<!-- IMAGE UPLOAD -->
+
+<div class="card">
+
+<h2>Upload Screenshot for Image Review</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="file" name="image">
+
+<br><br>
+
+<button>
+Upload Image
+</button>
+
+</form>
+
+</div>
+
+{% if uploaded_image %}
+
+<div class="card">
+
+<h2>Uploaded Image</h2>
+
+<img
+src="{{ uploaded_image }}"
+style="max-width:100%; border-radius:10px;">
+
+</div>
+
+{% endif %}
+
+<!-- IMAGE RESULT -->
+
+{% if image_result %}
+
+<div class="card">
+
+<h2>Image Analysis Result</h2>
+
+<p>
+
+<b>Detected Issue:</b>
+
+<span class="badge">
+
+{{ image_result }}
+
+</span>
+
+</p>
+
+<br>
+
+<div class="preview-box">
+
+{{ image_explanation }}
+
+</div>
+
+<br>
+
+<p>
+
+<b>Confidence:</b>
+
+<span class="badge">
+
+{{ image_confidence }} %
+
+</span>
+
+</p>
+
+</div>
+
+{% endif %}
+
+<!-- OCR TEXT -->
+
+{% if extracted_text %}
+
+<div class="card">
+
+<h2>Extracted Text from Image</h2>
+
+<div class="preview-box">
+
+{{ extracted_text }}
+
+</div>
+
+</div>
+
+{% endif %}
+
+<!-- GRAPH -->
+
+<div class="card" id="graph">
+
+<h2>User–Product Relationship Graph</h2>
+
+<iframe
+src="/static/graph.html"
+width="100%"
+height="520"
+style="border:none;">
+</iframe>
+
+<div class="legend">
+
+<span class="blue">
+Blue = Users
+</span>
+
+<span class="green">
+Green = Products
+</span>
+
+<span class="red">
+Red = Recommended Product
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* SENTIMENT PIE */
+
+new Chart(
+document.getElementById("sentimentChart"),
+{
+type: "pie",
+data: {
+labels: ["Positive", "Negative"],
+datasets: [{
+data: [{{ positive }}, {{ negative }}],
+backgroundColor: ["#2ECC71","#E74C3C"]
+}]
+}
+});
+
+/* PERFORMANCE */
+
+new Chart(
+document.getElementById("performanceChart"),
+{
+type: "bar",
+data: {
+labels: ["Precision","Recall","F1 Score"],
+datasets: [{
+label: "Model Performance",
+data: [{{ precision }}, {{ recall }}, {{ f1 }}]
+}]
+}
+});
+
+</script>
+
+</body>
+
+</html>
