@@ -1,2 +1,33 @@
-# Explainable-AI-product-recommendation-system
-Explainable AI product recommendation system that analyzes user reviews using sentiment analysis and fuzzy logic, models user-product relationships with graph neural networks, and detects software errors from screenshots using OCR to provide solutions and improve decision-making.
+# Explainable AI Product Recommendation System
+
+This project implements an intelligent product recommendation system using:
+
+- Sentiment Analysis
+- Fuzzy Logic
+- Graph Neural Network
+- Explainable AI
+- Image-based Error Detection
+
+## Features
+
+- Personalized product recommendations
+- Explainable recommendation scoring
+- Graph visualization
+- Image error detection using OCR
+- Automatic solution recommendation
+- Dashboard with analytics
+
+## Technologies
+
+Python  
+Flask  
+Machine Learning  
+PyTorch  
+NetworkX  
+Tesseract OCR  
+Chart.js  
+
+## How to Run
+
+pip install -r requirements.txt  
+python app.py
